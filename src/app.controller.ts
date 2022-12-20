@@ -1,12 +1,10 @@
 import { Controller, Get, Request, Post, Body, Put, Param, Delete, UseGuards, ValidationPipe, UsePipes} from '@nestjs/common';
 import { AppService } from './app.service';
-import { SysRequestDto } from './dto/sys-request.dto';
-import { Designer } from './schemas/designer.schema';
-import { SysRequest } from './schemas/sysrequest.schema';
 import { LoginDataDto, CreateUserDto, UpdateUserDto, UserDto, CallVerifyDto } from './dto/user.dto';
 import { LocalAuthGuard } from './auth/local-auth.guard';
 import { AuthService } from './auth/auth.service';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
+import { User } from './schemas/user.schema';
 
 @Controller()
 export class AppController {
@@ -29,10 +27,10 @@ export class AppController {
   //   return this.appService.makeRequest(sysRequestDto);
   // }
 
-  // @Get('/designers')
-  // async getDesigners(): Promise<Designer[]> {
-  //   return this.appService.getDesigners();
-  // }
+  @Get('user/all')
+  async getAll(): Promise<User[]> {
+    return this.authService.getAll();
+  }
 
   @UseGuards(LocalAuthGuard)
   @Post('user/login')

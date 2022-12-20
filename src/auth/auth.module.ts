@@ -8,15 +8,11 @@ import { jwtConstants } from './constants';
 import { HttpModule } from '@nestjs/axios';
 import { SmsService } from './sms.service';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Designer, DesignerSchema } from '../schemas/designer.schema';
-import { SysRequest, SysRequestSchema } from '../schemas/sysrequest.schema';
 import { User, UserSchema } from 'src/schemas/user.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
-      { name: Designer.name, schema: DesignerSchema },
-      { name: SysRequest.name, schema: SysRequestSchema },
       { name: User.name, schema: UserSchema },
     ]),
     PassportModule,
