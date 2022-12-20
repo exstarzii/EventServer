@@ -3,7 +3,7 @@ import { AppService } from './app.service';
 import { SysRequestDto } from './dto/sys-request.dto';
 import { Designer } from './schemas/designer.schema';
 import { SysRequest } from './schemas/sysrequest.schema';
-import { LoginDataDto, CreateUserDto, UpdateUserDto, UserDto } from './dto/user.dto';
+import { LoginDataDto, CreateUserDto, UpdateUserDto, UserDto, CallVerifyDto } from './dto/user.dto';
 import { LocalAuthGuard } from './auth/local-auth.guard';
 import { AuthService } from './auth/auth.service';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
@@ -43,6 +43,14 @@ export class AppController {
     return this.authService.login(req.user);
   }
 
+  @Post('phoneVerify')
+  @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
+  async verify(@Body() callVerifyDto: CallVerifyDto) {
+     console.log("phoneVerify");
+     console.log(callVerifyDto);
+    return this.authService.callVerify(callVerifyDto);
+  }
+
   @Post('user')
   @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
   async create(@Body() userDto: UserDto) {
@@ -51,16 +59,16 @@ export class AppController {
     return this.authService.signup(userDto);
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Put('user')
-  @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
-  async update(@Request() req, @Body() updateUserDto: UpdateUserDto) {
-    return this.authService.updateUser(req.user.userId,updateUserDto);
-  }
+  // @UseGuards(JwtAuthGuard)
+  // @Put('user')
+  // @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
+  // async update(@Request() req, @Body() updateUserDto: UpdateUserDto) {
+  //   return this.authService.updateUser(req.user.userId,updateUserDto);
+  // }
 
-  @UseGuards(JwtAuthGuard) 
-  @Delete('user')
-  async remove(@Request() req) {
-    return this.authService.deleteUser(req.user.userId);
-  }
+  // @UseGuards(JwtAuthGuard) 
+  // @Delete('user')
+  // async remove(@Request() req) {
+  //   return this.authService.deleteUser(req.user.userId);
+  // }
 }

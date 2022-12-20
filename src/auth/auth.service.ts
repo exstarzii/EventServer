@@ -1,5 +1,4 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
-import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Designer, DesignerDocument } from '../schemas/designer.schema';
@@ -7,13 +6,12 @@ import { SysRequest, SysRequestDocument } from '../schemas/sysrequest.schema';
 import { User, UserDocument } from '../schemas/user.schema';
 import { Model } from 'mongoose';
 import { SysRequestDto } from '../dto/sys-request.dto';
-import { UserDto } from '../dto/user.dto';
+import { CallVerifyDto, UserDto } from '../dto/user.dto';
 import { SmsService } from './sms.service';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private usersService: UsersService,
     private jwtService: JwtService,
     @InjectModel(Designer.name) private designerModel: Model<DesignerDocument>,
     @InjectModel(SysRequest.name) private sysRequestModel: Model<SysRequestDocument>,
@@ -21,14 +19,25 @@ export class AuthService {
     private smsService: SmsService,
   ) {}
 
-  async validateUser(email: string, pass: string): Promise<any> {
+  async validateUser(nickname: string, code: string): Promise<any> {
     // console.log("validateUser");
-    const user = await this.usersService.findOne(email);
+    const user = await this.userModel.findById(nickname);
+
+    if(user.failedLoginAttempt >= +process.env.MONGODB_URI){
+      console.log('too many attems to log in!');
+      throw new BadRequestException('Duplicate nickname', {
+        cause: new Error(),
+        description: 'too many attems to log in! try call or message verify again',
+      });
+    }
+
     // console.log(user);
-    if (user && user.password === pass) {
+    if (user && user.code === code) {
       // console.log("validateUser pass");
-      const { password, ...result } = user;
+      const { code, ...result } = user;
       return result;
+    }else {
+      user.failedLoginAttempt++;
     }
     return null;
   }
@@ -40,24 +49,43 @@ export class AuthService {
     };
   }
 
-  async updateUser(userId: any, updatedUser: any) {
-    await this.usersService.updateUser(userId,updatedUser);
-  }
+  // async updateUser(userId: any, updatedUser: any) {
+  //   await this.usersService.updateUser(userId,updatedUser);
+  // }
 
   async getUser(userId: any) {
-    const user = await this.usersService.findById(userId);
+    const user = await this.userModel.find(userId);
     if(!user)return;
     // console.log(user);
     return user;
   }
 
-  async getAll(): Promise<any | undefined> {
-    const users = await this.usersService.getAll();
-    return users;
-  }
+  // async getAll(): Promise<any | undefined> {
+  //   const users = await this.usersService.getAll();
+  //   return users;
+  // }
 
-  async deleteUser(userId: any) {
-    await this.usersService.deleteUser(userId);
+  // async deleteUser(userId: any) {
+  //   await this.usersService.deleteUser(userId);
+  // }
+
+  async callVerify(callVerifyDto: CallVerifyDto) {
+    const user = await this.userModel.findOne(callVerifyDto);
+    if(!user){
+      throw new BadRequestException('Wrong nickname', {
+        cause: new Error(),
+        description: 'There is no such nickname',
+      });
+    }
+    const res = await this.smsService.call(user.phone);
+    if(res.status == "OK"){
+      user.code = res.code;
+      this.userModel.findByIdAndUpdate(user.nickname,user);
+    }
+    else throw new BadRequestException('Wrong phone', {
+      cause: new Error(),
+      description: 'Wrong phone',
+    });
   }
 
   async signup(usertDto: UserDto): Promise<User> {
@@ -68,7 +96,6 @@ export class AuthService {
         description: 'The database already has such a nickname',
       });
     const user = await this.userModel.create(usertDto);
-    //this.smsService.call(user.phone);
     return user;
   }
 }

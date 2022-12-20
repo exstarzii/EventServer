@@ -5,13 +5,21 @@ export class UserDto {
   nickname: string;
   @IsPhoneNumber()
   phone: string;
+  @IsOptional()
+  code : string;
+  @IsOptional()
+  failedLoginAttempt : number;
+}
+export class CallVerifyDto {
+  @IsNotEmpty()
+  nickname: string;
 }
 
 export class LoginDataDto {
-  @IsEmail()
-  email: string;
   @IsNotEmpty()
-  password: string;
+  nickname: string;
+  @IsNotEmpty()
+  code : string;
 }
 export class Base {
   @IsOptional()
