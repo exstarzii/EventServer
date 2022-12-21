@@ -1,6 +1,40 @@
-import { IsEmail, IsNotEmpty, IsOptional, IsPhoneNumber } from 'class-validator';
+import { IsEmail, IsInt, IsNotEmpty, IsOptional, IsPhoneNumber, Max, Min } from 'class-validator';
 
-export class UserDto {
+export let publicUserData = 
+  `
+  nickname
+  phone
+  name 
+  surename 
+  email
+  sex 
+  age 
+  city 
+  about
+  `;
+
+export class Extra {
+  @IsOptional()
+  name : string;
+  @IsOptional()
+  surename : string;
+  @IsOptional() 
+  @IsEmail()
+  email : string;
+  @IsOptional()
+  sex : string;
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(99)
+  age : number;
+  @IsOptional()
+  city : string;
+  @IsOptional()
+  about : string;
+}
+
+export class UserDto extends Extra {
   @IsNotEmpty()
   nickname: string;
   @IsPhoneNumber()
@@ -10,6 +44,8 @@ export class UserDto {
   @IsOptional()
   failedLoginAttempt : number;
 }
+
+
 export class CallVerifyDto {
   @IsNotEmpty()
   nickname: string;
@@ -21,35 +57,12 @@ export class LoginDataDto {
   @IsNotEmpty()
   code : string;
 }
-export class Base {
-  @IsOptional()
-  phone : string;
-  @IsOptional()
-  about: string;
+
+export class UpdateUserDto extends Extra {
+  @IsNotEmpty()
+  nickname: string;
+  @IsPhoneNumber()
+  phone: string;
 }
 
-export class CreateUserDto{
-  @IsEmail()
-  email: string;
-  @IsNotEmpty()
-  password: string;
-  @IsNotEmpty()
-  username: string;
-  @IsOptional()
-  phone : string;
-  @IsOptional()
-  about: string;
-}
 
-export class UpdateUserDto {
-  @IsOptional()
-  email: string;
-  @IsOptional()
-  password: string;
-  @IsOptional()
-  username: string;
-  @IsOptional()
-  phone : string;
-  @IsOptional()
-  about: string;
-}

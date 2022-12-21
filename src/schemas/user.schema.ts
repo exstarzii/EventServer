@@ -13,6 +13,21 @@ export class User {
   code : string;
   @Prop()
   failedLoginAttempt : number;
+
+  @Prop()
+  name : string;
+  @Prop()
+  surename : string;
+  @Prop()
+  email : string;
+  @Prop()
+  sex : string;
+  @Prop()
+  age : number;
+  @Prop()
+  city : string;
+  @Prop()
+  about : string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

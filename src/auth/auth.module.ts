@@ -8,7 +8,7 @@ import { jwtConstants } from './constants';
 import { HttpModule } from '@nestjs/axios';
 import { SmsService } from './sms.service';
 import { MongooseModule } from '@nestjs/mongoose';
-import { User, UserSchema } from 'src/schemas/user.schema';
+import { User, UserSchema } from '../schemas/user.schema';
 
 @Module({
   imports: [

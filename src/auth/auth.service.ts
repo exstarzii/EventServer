@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from '../schemas/user.schema';
 import { Model } from 'mongoose';
-import { CallVerifyDto, UserDto } from '../dto/user.dto';
+import { CallVerifyDto, publicUserData, UserDto } from '../dto/user.dto';
 import { SmsService } from './sms.service';
 
 @Injectable()
@@ -18,7 +18,8 @@ export class AuthService {
     //console.log("validateUser");
     const query = {'nickname':nickname}
     const user = await this.userModel.findOne(query);
-    if(user.failedLoginAttempt >= +process.env.MONGODB_URI){
+    if(!user)return;
+    if(user.failedLoginAttempt >= +process.env.MaximumNumberOfLoginAttempts){
       console.log('too many attems to log in!');
       throw new BadRequestException('Duplicate nickname', {
         cause: new Error(),
@@ -26,16 +27,15 @@ export class AuthService {
       });
     }
     // console.log(user);
-    if (user && user.code == code) {
-      //console.log("validateUser pass");
-      const { code, ...result } = user;
-      return result;
+    if (user.code == code) {
+      console.log("validateUser pass");
+      return {userId :user._id};
     }else {
-      //console.log("failedLoginAttempt "+user.code+" | "+code);
+      console.log("failedLoginAttempt "+user.code+" | "+code);
       user.failedLoginAttempt++;
       user.save();
+      return;
     }
-    return null;
   }
   
   async login(user: any) {
@@ -45,14 +45,31 @@ export class AuthService {
     };
   }
 
-  // async updateUser(userId: any, updatedUser: any) {
-  //   await this.usersService.updateUser(userId,updatedUser);
-  // }
+  async updateUser(userId: any, updatedUser: any) {
+    const user = await this.userModel.findById(userId);
+    try{
+      await user.update(updatedUser);
+      return user;
+    }
+    catch(err){
+      throw new BadRequestException('Error', {
+        cause: new Error(),
+        description: err.message,
+      });
+    }
+  }
 
   async getUser(userId: any) {
-    const user = await this.userModel.findOne(userId);
+    const user = await this.userModel.findById(userId);
+    console.log(user);
     if(!user)return;
-    // console.log(user);
+    return user;
+  }
+
+  async getUserPublic(userId: any) {
+    const user = await this.userModel.findById(userId, publicUserData);
+    console.log(user);
+    if(!user)return;
     return user;
   }
 
@@ -62,9 +79,19 @@ export class AuthService {
     return users;
   }
 
-  // async deleteUser(userId: any) {
-  //   await this.usersService.deleteUser(userId);
-  // }
+  async deleteUser(userId: any) {
+    const user = await this.userModel.findById(userId);
+    try{
+      const res = user.delete();
+      return res;
+    }
+    catch(err){
+      throw new BadRequestException('Error', {
+        cause: new Error(),
+        description: err.message,
+      });
+    }
+  }
 
   async callVerify(callVerifyDto: CallVerifyDto) {
     const query = {'nickname':callVerifyDto.nickname}
@@ -75,37 +102,36 @@ export class AuthService {
         description: 'There is no such nickname',
       });
     }
-    // const res = await this.smsService.call(user.phone);
-    // if(res.status == "OK"){
-      user.code = "1234";
+    if(process.env.UseCallVerification == 'true'){
+      const res = await this.smsService.call(user.phone);
+      if(res.status == "OK"){
+        user.failedLoginAttempt=0;
+        user.code = res.code;
+        user.save();
+      }
+      else throw new BadRequestException('Wrong phone', {
+        cause: new Error(),
+        description: 'Wrong phone',
+      });
+    }else{
+      user.code = "4321";
       user.failedLoginAttempt=0;
-    //   user.code = res.code;
       user.save();
-    // }
-    // else throw new BadRequestException('Wrong phone', {
-    //   cause: new Error(),
-    //   description: 'Wrong phone',
-    // });
+      return user.code;
+    }
     
   }
 
   async signup(usertDto: UserDto): Promise<User> {
-    const check = await this.userModel.find(usertDto).count();
-    if (check > 0)
-      throw new BadRequestException('Duplicate nickname', {
-        cause: new Error(),
-        description: 'The database already has such a nickname',
-      });
     try{
       usertDto.failedLoginAttempt=0;
-      usertDto.code = null;
       const user = await this.userModel.create(usertDto);
       return user;
     }
     catch(err){
-      throw new BadRequestException('Duplicate phone', {
+      throw new BadRequestException('Error', {
         cause: new Error(),
-        description: 'The database already has such a phone',
+        description: err.message,
       });
     }
   }

@@ -5,6 +5,8 @@ import { AppModule } from './../src/app.module';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
+  let token ='';
+  let code='1234';
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -15,37 +17,110 @@ describe('AppController (e2e)', () => {
     await app.init();
   });
 
-  it('/designers', () => {
+  // it('/user/all (GET)', () => {
+  //   return request(app.getHttpServer())
+  //     .get('/user/all')
+  //     .expect(200)
+  //     .then(response => {
+  //       console.log({request:'/user/all (GET)',response:response.body});
+  //     });
+  // });
+
+  it('/user (POST) 201', () => {
     return request(app.getHttpServer())
-      .get('/designers')
-      .expect(200)
-      .expect([
-        { _id: 0, fio: 'Username1' },
-        { _id: 1, fio: 'Username2' },
-      ]);
+      .post('/user')
+      .send({
+        "nickname": "exstarzii",
+        "phone": "+79302710862"
+      })
+      .expect(201)
+      .then(response => {
+        console.log({request:'/user (POST)',response:response.body});
+      });
   });
 
-  it('/requests', () => {
+  it('/user/phoneVerify (POST) 201', () => {
     return request(app.getHttpServer())
-      .get('/requests')
-      .expect(200)
-      .expect([
-        { count: 1, name: 'ISO 1' },
-        { count: 1, name: 'ISO 2' },
-      ]);
+      .post('/user/phoneVerify')
+      .send({
+        "nickname": "exstarzii"
+      })
+      .expect(201)
+      .then(response => {
+        console.log({request:'/user/phoneVerify (POST)',response:response.body});
+      });
   });
 
-  it('/requests', function (done) {
+  it('/user/login (POST) 201', () => {
     return request(app.getHttpServer())
-      .post('/requests')
-      .send({ name: 'ISO 3' })
-      .set('Accept', 'application/json')
-      .expect('Content-Type', /json/)
+      .post('/user/login')
+      .send({
+        "nickname": "exstarzii",
+        "code": code
+      })
+      .expect(201)
+      .then(response => {
+        token = response.body.access_token;
+        console.log({request:'/user/login (POST)',response:response.body});
+      });
+  });
+
+  it('/user (GET)', () => {
+    return request(app.getHttpServer())
+      .get('/user')
+      .set('Authorization', 'Bearer '+token)
       .expect(200)
-      .expect({ name: 'ISO 3' })
-      .end(function (err, res) {
-        if (err) return done(err);
-        return done();
+      .then(response => {
+        console.log({request:'/user (GET)',response:response.body});
+      });
+  });
+
+
+  it('/user (PUT) 200', () => {
+    return request(app.getHttpServer())
+      .put('/user')
+      .set('Authorization', 'Bearer '+token)
+      .send({
+        "nickname": "exstarzii",
+        "phone": "+79302710862",
+        "sex":"man",
+        "age":21
+      })
+      .expect(200)
+      .then(response => {
+        console.log({request:'/user (PUT)',response:response.body});
+      });
+  });
+
+  it('/user (DELETE) 200', () => {
+    return request(app.getHttpServer())
+      .delete('/user')
+      .set('Authorization', 'Bearer '+token)
+      .expect(200)
+      .then(response => {
+        console.log({request:'/user (DELETE)',response:response.body});
+      });
+  });
+
+  it('/user/all (GET) 200', () => {
+    return request(app.getHttpServer())
+      .get('/user/all')
+      .expect(200)
+      .then(response => {
+        console.log({request:'/user/all (GET)',response:response.body});
+      });
+  });
+
+  it('/user/login (POST) 401', () => {
+    return request(app.getHttpServer())
+      .post('/user/login')
+      .send({
+        "nickname": "exstarzii",
+        "code": code
+      })
+      .expect(401)
+      .then(response => {
+        console.log({request:'/user/login (POST)',response:response.body});
       });
   });
 });
