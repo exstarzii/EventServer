@@ -48,7 +48,7 @@ export class AuthService {
   async updateUser(userId: any, updatedUser: any) {
     const user = await this.userModel.findById(userId);
     try{
-      await user.update(updatedUser);
+      await user.updateOne(updatedUser);
       return user;
     }
     catch(err){
