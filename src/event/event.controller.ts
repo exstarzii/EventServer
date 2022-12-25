@@ -1,7 +1,8 @@
 import { Controller, Get, Request, Post, Body, Put, Param, Delete, UseGuards, ValidationPipe, UsePipes} from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { EventService } from './event.service';
-import { EventDto } from '../dto/event.dto';
+import { EventDto, Point } from '../dto/event.dto';
+import { identity } from 'rxjs';
 
 @Controller('event')
 export class EventController {
@@ -15,8 +16,14 @@ export class EventController {
     }
   
     @Get('/id')
-    async getUser(@Param('id') id: string) {
+    async getEvent(@Param('id') id: string) {
       return this.eventService.getData(id);
+    }
+
+    @Get()
+    @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
+    async getAllEvent(@Param('origin') origin:Point,@Param('radius') radius:number) {
+      return this.eventService.getEvents(origin, radius);
     }
   
     @UseGuards(JwtAuthGuard)
@@ -28,7 +35,7 @@ export class EventController {
   
     @UseGuards(JwtAuthGuard) 
     @Delete('/id')
-    async remove(@Param('id') id: string) {
-      return this.eventService.delete(id);
+    async remove(@Request() req,@Param('id') id: string) {
+      return this.eventService.delete(req.user.userId,id);
     }
 }

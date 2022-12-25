@@ -8,12 +8,24 @@ describe('EventService', () => {
   let service: EventService;
   let authorId = '63a4488fa747bcfb95fc43c3';
   let eventId;
+  let zvl =  {
+    type: 'Point',
+    coordinates: [56.640441, 43.387161],
+  };
+  let gorodets =  {
+    type: 'Point',
+    coordinates: [56.644821, 43.472354],
+  };
+  let balahna =  {
+    type: 'Point',
+    coordinates: [56.504917, 43.601293],
+  };
   let createDto = {
     name: 'name',
-    dateStart: '',
-    dateEnd: '',
+    dateStart: Date.now().toString(),
+    dateEnd:  Date.now().toString(),
     category: '',
-    location: '',
+    location: gorodets,
     images: '',
     description: '',
   };
@@ -26,6 +38,13 @@ describe('EventService', () => {
       imports: [
         ConfigModule.forRoot(),
         MongooseModule.forRoot(process.env.MONGODB_URI),
+        // MongooseModule.forRootAsync({
+        //   useFactory: async () => ({
+        //     uri: process.env.MONGODB_URI,
+        //     useNewUrlParser: true,
+        //     useCreateIndex: true,
+        //   }),
+        //  }),
         MongooseModule.forFeature([{ name: Event.name, schema: EventSchema }]),
       ],
       providers: [EventService],
@@ -39,9 +58,20 @@ describe('EventService', () => {
   });
 
   it('should return new event', async () => {
-    const res = await service.create(authorId, createDto);
-    eventId = res._id;
-    expect(res).toHaveProperty('_id');
+    console.log(createDto);
+      const res = await service.create(authorId, createDto);
+      eventId = res._id;
+      expect(res).toHaveProperty('_id');
+  });
+
+  it('should get gorodets event near 10 km from zvl', async () => {
+    const res = await service.getEvents(zvl,10000);
+    expect(res.length).toBeGreaterThan(0);
+  });
+
+  it('should not get gorodets event near 10 km from balahna', async () => {
+    const res = await service.getEvents(balahna,10000);
+    expect(res.length).toBe(0);
   });
 
   it('should update event', async () => {

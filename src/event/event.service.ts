@@ -2,7 +2,7 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { EventDocument, Event } from '../schemas/event.schema';
-import { EventDto, EventDtoCreate, EventDtoPublic, publicEventData } from '../dto/event.dto';
+import { EventDto, EventDtoCreate, publicEventData, Point } from '../dto/event.dto';
 
 @Injectable()
 export class EventService {
@@ -42,10 +42,25 @@ export class EventService {
     }
   }
 
-  // ____________________________________________
-  async getAll(): Promise<any | undefined> {
-    const users = await this.eventModel.find();
-    return users;
+  async getEvents(origin: Point, radius: number) {
+    try {
+      // const events = await this.eventModel.find()
+      // .where("location").near({ center: origin.coordinates, maxDistance: radius})
+      const events = await this.eventModel.find( { "location" :
+        { $near :
+          { $geometry :
+             { type : "Point" ,
+               coordinates : origin.coordinates } ,
+            $maxDistance : radius
+     } } })
+      return events;
+    } catch (err) {
+      console.error(err.message)
+      throw new BadRequestException('Error', {
+        cause: new Error(),
+        description: err.message,
+      });
+    }
   }
 
   async delete(userId: any, eventId) {
@@ -73,6 +88,7 @@ export class EventService {
       const res = await this.eventModel.create(event);
       return res;
     } catch (err) {
+      console.error(err.message)
       throw new BadRequestException('Error', {
         cause: new Error(),
         description: err.message,

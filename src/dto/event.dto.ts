@@ -1,8 +1,15 @@
-import { IsEmail, IsInt, IsNotEmpty, IsOptional, IsPhoneNumber, Max, Min } from 'class-validator';
-import mongoose from 'mongoose';
+import {
+  IsEmail,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsPhoneNumber,
+  Max,
+  Min,
+} from 'class-validator';
+import mongoose, { Date } from 'mongoose';
 
-export let publicEventData = 
-  `
+export let publicEventData = `
   _id
   name
   dateStart
@@ -16,36 +23,47 @@ export let publicEventData =
   `;
 
 export class EventDtoExtra {
-  
   name: string;
   @IsOptional()
   dateStart: string;
   @IsOptional()
-  dateEnd : string;
+  dateEnd: string;
   @IsOptional()
-  category : string;
+  category: string;
   @IsOptional()
-  location : string;
+  images: string;
   @IsOptional()
-  images : string;
-  
-  @IsOptional()
-  description : string;
+  description: string;
 }
-export class EventDto extends EventDtoExtra{
+export class EventDto extends EventDtoExtra {
   @IsOptional()
-  author? : mongoose.Types.ObjectId;
+  author?: mongoose.Types.ObjectId;
   @IsOptional()
-  participants? :  [mongoose.Types.ObjectId];
+  participants?: [mongoose.Types.ObjectId];
   @IsOptional()
-  _id?:string;
+  _id?: string;
+  @IsOptional()
+  location: {
+    type: String;
+    coordinates: Number[];
+  };
 }
 
-export class EventDtoCreate extends EventDtoExtra{
+export class EventDtoCreate extends EventDtoExtra {
   @IsOptional()
-  author? : mongoose.Types.ObjectId;
+  author?: mongoose.Types.ObjectId;
   @IsOptional()
-  participants? :  [mongoose.Types.ObjectId];
+  participants?: [mongoose.Types.ObjectId];
   @IsOptional()
-  _id?:string;
+  _id?: string;
+  @IsOptional()
+  location: {
+    type: String;
+    coordinates: Number[];
+  };
+}
+
+export class Point {
+  type: String;
+  coordinates: Number[];
 }
