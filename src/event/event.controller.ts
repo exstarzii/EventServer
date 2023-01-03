@@ -2,7 +2,6 @@ import { Controller, Get, Request, Post, Body, Put, Param, Delete, UseGuards, Va
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { EventService } from './event.service';
 import { EventDto, Point } from '../dto/event.dto';
-import { identity } from 'rxjs';
 
 @Controller('event')
 export class EventController {

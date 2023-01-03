@@ -9,6 +9,8 @@ import { SmsService } from './sms.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from '../schemas/user.schema';
 import { AuthController } from './auth.controller';
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 @Module({
   imports: [

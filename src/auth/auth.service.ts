@@ -61,7 +61,7 @@ export class AuthService {
 
   async getUser(userId: any) {
     const user = await this.userModel.findById(userId);
-    console.log(user);
+    //console.log(user);
     if(!user)return;
     return user;
   }
