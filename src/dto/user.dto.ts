@@ -50,6 +50,20 @@ export class CallVerifyDto {
   @IsNotEmpty()
   nickname: string;
 }
+export class SignupDto {
+  @IsNotEmpty()
+  nickname: string;
+  @IsPhoneNumber()
+  phone: string;
+  @IsNotEmpty()
+  code : string;
+}
+export class CheckUserDto {
+  @IsNotEmpty()
+  nickname: string;
+  @IsPhoneNumber()
+  phone: string;
+}
 
 export class LoginDataDto {
   @IsNotEmpty()

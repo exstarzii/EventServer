@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from '../schemas/user.schema';
 import { Model } from 'mongoose';
-import { CallVerifyDto, publicUserData, UserDto } from '../dto/user.dto';
+import { CallVerifyDto, CheckUserDto, publicUserData, UserDto } from '../dto/user.dto';
 import { SmsService } from './sms.service';
 
 @Injectable()
@@ -121,18 +121,34 @@ export class AuthService {
     }
     
   }
+  // async checkUserExist(checkUserDto: CheckUserDto){
+  //   try{
+  //     const queryNickname = {'nickname':checkUserDto.nickname}
+  //     const userNickname = await this.userModel.findOne(queryNickname);
+  //     const queryPhone = {'phone':checkUserDto.phone}
+  //     const userPhone = await this.userModel.findOne(queryPhone);
+  //     let errorMessage = ""
+  //   }
+  //   catch(err){
+  //     throw new BadRequestException('Error', {
+  //       cause: new Error(),
+  //       description: err.message,
+  //     });
+  //   }
+  // }
 
   async signup(usertDto: UserDto): Promise<User> {
-    try{
+    // try{
       usertDto.failedLoginAttempt=0;
       const user = await this.userModel.create(usertDto);
       return user;
-    }
-    catch(err){
-      throw new BadRequestException('Error', {
-        cause: new Error(),
-        description: err.message,
-      });
-    }
+    // }
+    // catch(err){
+    //   console.log(err);
+    //   throw new BadRequestException([err.message], {
+    //     cause: new Error(),
+    //     description: 'Error',
+    //   });
+    // }
   }
 }
