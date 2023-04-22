@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from '../schemas/user.schema';
 import { Model } from 'mongoose';
-import { CallVerifyDto, CheckUserDto, publicUserData, UserDto } from '../dto/user.dto';
+import { CallVerifyDto, publicUserData, UserDto } from '../dto/user.dto';
 import { SmsService } from './sms.service';
 
 @Injectable()
@@ -46,6 +46,7 @@ export class AuthService {
   }
 
   async updateUser(userId: any, updatedUser: any) {
+    console.log(updatedUser);
     const user = await this.userModel.findById(userId);
     try{
       await user.updateOne(updatedUser);
@@ -68,7 +69,7 @@ export class AuthService {
 
   async getUserPublic(userId: any) {
     const user = await this.userModel.findById(userId, publicUserData);
-    console.log(user);
+    // console.log(user);
     if(!user)return;
     return user;
   }
@@ -121,26 +122,14 @@ export class AuthService {
     }
     
   }
-  // async checkUserExist(checkUserDto: CheckUserDto){
-  //   try{
-  //     const queryNickname = {'nickname':checkUserDto.nickname}
-  //     const userNickname = await this.userModel.findOne(queryNickname);
-  //     const queryPhone = {'phone':checkUserDto.phone}
-  //     const userPhone = await this.userModel.findOne(queryPhone);
-  //     let errorMessage = ""
-  //   }
-  //   catch(err){
-  //     throw new BadRequestException('Error', {
-  //       cause: new Error(),
-  //       description: err.message,
-  //     });
-  //   }
-  // }
 
   async signup(usertDto: UserDto): Promise<User> {
     // try{
       usertDto.failedLoginAttempt=0;
       const user = await this.userModel.create(usertDto);
+      let callVerifyDto =new CallVerifyDto();
+      callVerifyDto.nickname = usertDto.nickname
+      this.callVerify(callVerifyDto)
       return user;
     // }
     // catch(err){

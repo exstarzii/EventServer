@@ -28,6 +28,8 @@ export class User {
   city : string;
   @Prop()
   about : string;
+  @Prop()
+  photo :string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

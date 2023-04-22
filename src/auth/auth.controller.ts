@@ -1,5 +1,5 @@
 import { Controller, Get, Request, Post, Body, Put, Param, Delete, UseGuards, ValidationPipe, UsePipes, UseFilters} from '@nestjs/common';
-import { LoginDataDto, UpdateUserDto, UserDto, CallVerifyDto, CheckUserDto } from '../dto/user.dto';
+import { LoginDataDto, UpdateUserDto, UserDto, CallVerifyDto } from '../dto/user.dto';
 import { LocalAuthGuard } from './local-auth.guard';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
@@ -24,20 +24,14 @@ export class AuthController {
     return this.authService.login(req.user);
   }
 
-  // @Post('/phoneVerify')
-  // @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
-  // async verify(@Body() callVerifyDto: CallVerifyDto) {
-  //    console.log("phoneVerify");
-  //    console.log(callVerifyDto);
-  //   return this.authService.callVerify(callVerifyDto);
-  // }
-  // @Post('/check')
-  // @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
-  // async checkUserExist(@Body() checkUserDto: CheckUserDto) {
-  //    console.log("checkUser");
-  //    console.log(checkUserDto);
-  //   return this.authService.callVerify(checkUserDto);
-  // }
+  @Post('/phoneVerify')
+  @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
+  async verify(@Body() callVerifyDto: CallVerifyDto) {
+     console.log("phoneVerify");
+     console.log(callVerifyDto);
+    return this.authService.callVerify(callVerifyDto);
+  }
+
 
   @Post()
   @UseFilters(MongoExceptionFilter)
@@ -58,6 +52,7 @@ export class AuthController {
   @Put()
   @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
   async update(@Request() req, @Body() updateUserDto: UpdateUserDto) {
+    // console.log(updateUserDto);
     return this.authService.updateUser(req.user.userId,updateUserDto);
   }
 

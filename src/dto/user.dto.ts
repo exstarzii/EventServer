@@ -11,6 +11,7 @@ export let publicUserData =
   age 
   city 
   about
+  photo
   `;
 
 export class Extra {
@@ -32,6 +33,8 @@ export class Extra {
   city : string;
   @IsOptional()
   about : string;
+  @IsOptional()
+  photo : string;
 }
 
 export class UserDto extends Extra {
@@ -55,14 +58,8 @@ export class SignupDto {
   nickname: string;
   @IsPhoneNumber()
   phone: string;
-  @IsNotEmpty()
+  @IsOptional()
   code : string;
-}
-export class CheckUserDto {
-  @IsNotEmpty()
-  nickname: string;
-  @IsPhoneNumber()
-  phone: string;
 }
 
 export class LoginDataDto {

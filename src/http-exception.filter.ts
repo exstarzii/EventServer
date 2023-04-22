@@ -12,11 +12,12 @@ export class MongoExceptionFilter implements ExceptionFilter {
     let message = 'mongo exception'
     const start = exception.message.indexOf('{')
     const end = exception.message.indexOf('}',start)+1
+    console.log(exception.message)
     switch (exception.code) {
       case 11000:
         // duplicate exception
         // do whatever you want here, for instance send error to client
-        console.log(start,end)
+        
         message = 'duplicate '+exception.message.substring(start,end)
     }
     response
