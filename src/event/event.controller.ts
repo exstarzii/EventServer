@@ -21,8 +21,9 @@ export class EventController {
 
     @Get()
     @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
-    async getAllEvent(@Param('origin') origin:Point,@Param('radius') radius:number) {
-      return this.eventService.getEvents(origin, radius);
+    async getAllEvent(@Request() req,@Param('origin') origin:number[],@Param('radius') radius:number) {
+      console.log(req.query);
+      return this.eventService.getEvents(req.query.origin, req.query.radius);
     }
   
     @UseGuards(JwtAuthGuard)

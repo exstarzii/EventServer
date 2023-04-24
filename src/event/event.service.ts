@@ -42,7 +42,7 @@ export class EventService {
     }
   }
 
-  async getEvents(origin: Point, radius: number) {
+  async getEvents(origin: number[], radius: number) {
     try {
       // const events = await this.eventModel.find()
       // .where("location").near({ center: origin.coordinates, maxDistance: radius})
@@ -50,12 +50,12 @@ export class EventService {
         { $near :
           { $geometry :
              { type : "Point" ,
-               coordinates : origin.coordinates } ,
+               coordinates : origin } ,
             $maxDistance : radius
      } } })
       return events;
     } catch (err) {
-      console.error(err.message)
+      //console.error(err.message)
       throw new BadRequestException('Error', {
         cause: new Error(),
         description: err.message,

@@ -23,6 +23,7 @@ export let publicEventData = `
   `;
 
 export class EventDtoExtra {
+  @IsOptional()
   name: string;
   @IsOptional()
   dateStart: string;
