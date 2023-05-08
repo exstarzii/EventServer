@@ -1,4 +1,5 @@
 import { IsEmail, IsInt, IsNotEmpty, IsOptional, IsPhoneNumber, Max, Min } from 'class-validator';
+import mongoose from 'mongoose';
 
 export let publicUserData = 
   `
@@ -12,6 +13,7 @@ export let publicUserData =
   city 
   about
   photo
+  friends
   `;
 
 export class Extra {
@@ -35,6 +37,8 @@ export class Extra {
   about : string;
   @IsOptional()
   photo : string;
+  @IsOptional()
+  friends?: [mongoose.Types.ObjectId];
 }
 
 export class UserDto extends Extra {

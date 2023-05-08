@@ -49,6 +49,12 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get('/:id')
+  async getUserById(@Param() params: any) {
+    return this.authService.getUserPublic(params.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Put()
   @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
   async update(@Request() req, @Body() updateUserDto: UpdateUserDto) {
