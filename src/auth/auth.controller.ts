@@ -1,5 +1,5 @@
 import { Controller, Get, Request, Post, Body, Put, Param, Delete, UseGuards, ValidationPipe, UsePipes, UseFilters} from '@nestjs/common';
-import { LoginDataDto, UpdateUserDto, UserDto, CallVerifyDto } from '../dto/user.dto';
+import { LoginDataDto, UpdateUserDto, UserDto, CallVerifyDto, AddFriendDto } from '../dto/user.dto';
 import { LocalAuthGuard } from './local-auth.guard';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
@@ -40,6 +40,25 @@ export class AuthController {
     //  console.log("auth/signup");
     //  console.log(userDto);
     return this.authService.signup(userDto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('/friends')
+  @UseFilters(MongoExceptionFilter)
+  async addFriend(@Request() req,@Body() userDto: AddFriendDto) {
+    return this.authService.addFriend(req.user.userId,userDto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/friends')
+  async getFriends(@Request() req) {
+    return this.authService.getFriends(req.user.userId);
+  }
+
+  @UseGuards(JwtAuthGuard) 
+  @Delete('/friends/:id')
+  async delFriend(@Request() req,@Param() params: any) {
+    return this.authService.delFriend(req.user.userId,params.id);
   }
 
   @UseGuards(JwtAuthGuard)

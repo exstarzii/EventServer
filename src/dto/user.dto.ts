@@ -79,5 +79,7 @@ export class UpdateUserDto extends Extra {
   @IsPhoneNumber()
   phone: string;
 }
-
+export class AddFriendDto{
+  _id: any;
+}
 

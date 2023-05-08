@@ -2,8 +2,8 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from '../schemas/user.schema';
-import { Model } from 'mongoose';
-import { CallVerifyDto, publicUserData, UserDto } from '../dto/user.dto';
+import mongoose, { Model, ObjectId } from 'mongoose';
+import { AddFriendDto, CallVerifyDto, publicUserData, UserDto } from '../dto/user.dto';
 import { SmsService } from './sms.service';
 
 @Injectable()
@@ -139,5 +139,58 @@ export class AuthService {
     //     description: 'Error',
     //   });
     // }
+  }
+  async addFriend(userId: any,userDto: AddFriendDto) {
+    try{
+      const user = await this.userModel.findById(userId);
+      const friend = await this.userModel.findById(userDto._id);
+    
+      user.friends?user.friends.push(userDto._id):[userDto._id]
+      friend.friends?friend.friends.push(userId):[userId]
+
+      await user.save()
+      await friend.save()
+      return friend;
+    }
+    catch(err){
+      console.error(err)
+      throw new BadRequestException('Error', {
+        cause: new Error(),
+        description: err.message,
+      });
+    }
+  }
+  async getFriends(userId: any) {
+    const user = await this.userModel.findById(userId);
+    // user.friends.map(el=>new mongoose.Types.ObjectId(el))
+    const users = await this.userModel.find({ _id: { $in: user.friends } });
+    return users;
+  }
+  async delFriend(userId: any, friendId: any) {
+    try {
+      const user = await this.userModel.findById(userId);
+      const friend = await this.userModel.findById(friendId);
+      if (user.friends) {
+        const indexToDelete = user.friends.indexOf(friendId);
+        if (indexToDelete !== -1) {
+          user.friends.splice(indexToDelete, 1);
+        }
+        user.save()
+      }
+      if (friend.friends) {
+        const indexToDelete = friend.friends.indexOf(userId);
+        if (indexToDelete !== -1) {
+          friend.friends.splice(indexToDelete, 1);
+        }
+        friend.save()
+      }
+      return friend;
+    }
+    catch (err) {
+      throw new BadRequestException('Error', {
+        cause: new Error(),
+        description: err.message,
+      });
+    }
   }
 }

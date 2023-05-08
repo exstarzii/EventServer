@@ -30,8 +30,8 @@ export class User {
   about : string;
   @Prop()
   photo :string;
-  @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }])
-  friends: string;
+  @Prop([{ type: mongoose.Types.ObjectId, ref: 'User' }])
+  friends: [mongoose.Types.ObjectId];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
