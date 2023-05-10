@@ -2,7 +2,7 @@ import { Controller,Request, Get, Post, Body, Patch, Param, Delete, UseGuards, U
 import { PostService } from './post.service';
 import { CreatePostDto } from './dto/post.dto';
 import { UpdatePostDto } from './dto/post.dto';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('user/:userId/post')
 export class PostController {

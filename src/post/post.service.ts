@@ -1,10 +1,10 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreatePostDto } from './dto/post.dto';
 import { UpdatePostDto } from './dto/post.dto';
-import { Post, PostDocument } from 'src/schemas/post.schema';
+import { Post, PostDocument } from '../schemas/post.schema';
 import mongoose, { Model, ObjectId } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { User, UserDocument } from 'src/schemas/user.schema';
+import { User, UserDocument } from '../schemas/user.schema';
 
 @Injectable()
 export class PostService {
