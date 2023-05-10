@@ -4,7 +4,7 @@ import { LocalAuthGuard } from './local-auth.guard';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { User } from '../schemas/user.schema';
-import { MongoExceptionFilter } from 'src/http-exception.filter';
+import { MongoExceptionFilter } from 'src/httpexception.filter';
 
 @Controller('user')
 export class AuthController {
