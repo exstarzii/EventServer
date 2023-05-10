@@ -14,22 +14,29 @@ export class PostService {
   ) { }
 
   async create(userId, createPostDto: CreatePostDto) {
-    console.log(createPostDto,userId);
+    console.log(createPostDto, userId);
     const user = await this.userModel.findById(userId);
-    createPostDto.date = Date.now().toString()
-    createPostDto.author = userId
-    const post = await this.postModel.create(createPostDto);
-    return post;
+    createPostDto.date = Date.now()
+    createPostDto.author = userId;
+    const post = await this.postModel.create(createPostDto)
+    const postA = await this.postModel.findById(post._id).populate('author');
+    // console.log(postA,post);
+    return postA;
   }
 
-  async like(userId: string, id: string) {
+  async like(postOwnerId:string,likedUserId: string, postId: string) {
     try {
-      const user = await this.userModel.findById(userId);
-      const post = await this.postModel.findById(id);
-      const myObjectId = new mongoose.Types.ObjectId(userId);
+      const userOwner = await this.userModel.findById(postOwnerId);
+      const user = await this.userModel.findById(likedUserId);
+      const post = await this.postModel.findById(postId);
+      const myObjectId = new mongoose.Types.ObjectId(likedUserId);
+      const indexToDelete = post.likes.indexOf(myObjectId);
+      if (indexToDelete !== -1) {
+        return post.populate('author');
+      }
       post.likes ? post.likes.push(myObjectId) : post.likes = [myObjectId]
-      post.save()
-      return post;
+      await post.save()
+      return post.populate('author');
     }
     catch (err) {
       throw new BadRequestException('Error', {
@@ -39,17 +46,18 @@ export class PostService {
     }
   }
 
-  async dislike(userId: string, id: string) {
+  async dislike(postOwnerId:string,likedUserId: string, postId: string) {
     try {
-      const user = await this.userModel.findById(userId);
-      const post = await this.postModel.findById(id);
-      const myObjectId = new mongoose.Types.ObjectId(userId);
+      const userOwner = await this.userModel.findById(postOwnerId);
+      const user = await this.userModel.findById(likedUserId);
+      const post = await this.postModel.findById(postId);
+      const myObjectId = new mongoose.Types.ObjectId(likedUserId);
       const indexToDelete = post.likes.indexOf(myObjectId);
       if (indexToDelete !== -1) {
         post.likes.splice(indexToDelete, 1);
       }
-      post.save()
-      return post;
+      await post.save()
+      return post.populate('author');
     }
     catch (err) {
       throw new BadRequestException('Error', {
@@ -61,11 +69,13 @@ export class PostService {
 
   async findAll(userId) {
     const post = await this.postModel.find({ author: userId })
+    .sort({date:"desc"})
+    .populate('author')
     return post;
   }
 
   async findOne(id: number) {
-    const post = await this.postModel.findById(id);
+    const post = await this.postModel.findById(id).populate('author');
     //console.log(user);
     if (!post) return;
     return post;
@@ -76,7 +86,8 @@ export class PostService {
       console.log(updatePostDto);
       const user = await this.userModel.findById(userId);
       const post = await this.postModel.findById(id);
-      await post.updateOne(updatePostDto);
+      updatePostDto.author = userId
+      await post.updateOne(updatePostDto).populate('author');
       return post;
     }
     catch (err) {
@@ -91,7 +102,7 @@ export class PostService {
     try {
       const user = await this.userModel.findById(userId);
       const post = await this.postModel.findById(id);
-      const res = post.delete();
+      const res = await post.delete();
       return res;
     }
     catch (err) {
@@ -100,5 +111,12 @@ export class PostService {
         description: err.message,
       });
     }
+  }
+  async findFriendsPosts(userId: string) {
+    const user = await this.userModel.findById(userId);
+    const posts = await this.postModel.find({author:{$in: user.friends}})
+    .sort({date:"desc"})
+    .populate('author')
+    return posts;
   }
 }

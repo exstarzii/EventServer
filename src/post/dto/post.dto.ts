@@ -8,7 +8,7 @@ export class CreatePostDto {
     @IsOptional()
     image: string;
     @IsOptional()
-    date: string;
+    date: number;
 }
 
 export class UpdatePostDto {
@@ -16,6 +16,8 @@ export class UpdatePostDto {
     text: string;
     @IsOptional()
     image: string;
+    @IsOptional()
+    author: string;
 }
 
 export class PostDto {

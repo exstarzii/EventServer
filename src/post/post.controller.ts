@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Controller,Request, Get, Post, Body, Patch, Param, Delete, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 import { PostService } from './post.service';
 import { CreatePostDto } from './dto/post.dto';
 import { UpdatePostDto } from './dto/post.dto';
@@ -17,19 +17,24 @@ export class PostController {
 
   @UseGuards(JwtAuthGuard)
   @Post(':id/like')
-  like(@Param('userId') userId: string,@Param('id') id: string) {
-    return this.postService.like(userId,id);
+  like(@Request() req,@Param('userId') userId: string,@Param('id') id: string) {
+    return this.postService.like(userId,req.user.userId,id);
   }
 
   @UseGuards(JwtAuthGuard)
   @Delete(':id/like')
-  dislike(@Param('userId') userId: string,@Param('id') id: string) {
-    return this.postService.dislike(userId,id);
+  dislike(@Request() req,@Param('userId') userId: string,@Param('id') id: string) {
+    return this.postService.dislike(userId,req.user.userId,id);
   }
 
   @Get()
   findAll(@Param('userId') userId: string) {
     return this.postService.findAll(userId);
+  }
+
+  @Get('/friends')
+  findFriendsPosts(@Param('userId') userId: string) {
+    return this.postService.findFriendsPosts(userId);
   }
 
   @Get(':id')
