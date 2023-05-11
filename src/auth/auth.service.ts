@@ -103,7 +103,7 @@ export class AuthService {
         description: 'There is no such nickname',
       });
     }
-    if(process.env.UseCallVerification == 'true'){
+    if(!!process.env.UseCallVerification){
       const res = await this.smsService.call(user.phone);
       if(res.status == "OK"){
         user.failedLoginAttempt=0;
